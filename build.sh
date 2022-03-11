@@ -8,7 +8,8 @@ jval=2
 rebuild=0
 rebuild_ffmpeg=0
 download_only=0
-uname -mpi | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
+is_x86=0
+#uname -mpi | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
 
 while getopts 'j:BdR' OPTION
 do
