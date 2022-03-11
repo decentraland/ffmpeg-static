@@ -467,7 +467,8 @@ elif [ "$platform" = "darwin" ]; then
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
-    --disable-opengl
+    --disable-opengl \
+    --disable-x86asm
 fi
 
 PATH="$BIN_DIR:$PATH" make -j $jval
