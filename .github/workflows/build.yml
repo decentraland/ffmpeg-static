@@ -93,8 +93,9 @@ jobs:
 
       - name: Pack
         shell: bash
-        working-directory: /opt/ffmpeg-static/target
+        working-directory: target
         run: |
+          pwd
           ls -laR
           ${{ matrix.config.archiver }} ../${{ matrix.config.artifact }} .
       - name: Upload

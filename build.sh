@@ -8,8 +8,8 @@ jval=2
 rebuild=0
 rebuild_ffmpeg=0
 download_only=0
-uname -mp | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
-
+uname -mpi | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
+echo $(uname -mpi)
 while getopts 'j:BdR' OPTION
 do
   case $OPTION in
@@ -45,10 +45,8 @@ fi
 [ "$rebuild" -eq 1 ] && echo "Reconfiguring existing packages..."
 [ $is_x86 -ne 1 ] && echo "Not using yasm or nasm on non-x86 platform..."
 
-mkdir -p "/opt/homebrew/"
-mkdir -p "/opt/homebrew/ffmpeg-static/"
-ENV_ROOT="/opt/homebrew/ffmpeg-static/"
-
+cd `dirname $0`
+ENV_ROOT=`pwd`
 . ./env.source
 
 # check operating system
