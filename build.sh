@@ -409,9 +409,9 @@ if [ "$platform" = "linux" ]; then
     --disable-librtmp \
     --enable-libsoxr \
     --enable-libspeex \
-    --enable-libtheora \
+    --disable-libtheora \
     --disable-libvidstab \
-    --enable-libvo-amrwbenc \
+    --disable-libvo-amrwbenc \
     --enable-libvorbis \
     --enable-libvpx \
     --disable-libwebp \
