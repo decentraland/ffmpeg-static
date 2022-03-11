@@ -467,7 +467,6 @@ elif [ "$platform" = "darwin" ]; then
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
-    --disable-libglslang \
     --disable-opengl
 fi
 
