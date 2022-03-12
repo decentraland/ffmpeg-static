@@ -8,8 +8,8 @@ jval=2
 rebuild=0
 rebuild_ffmpeg=0
 download_only=0
-uname -mpi | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
-echo $(uname -mpi)
+uname -mp | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
+echo $(uname -mp)
 while getopts 'j:BdR' OPTION
 do
   case $OPTION in
@@ -391,7 +391,7 @@ if [ "$platform" = "linux" ]; then
     --extra-ldexeflags="-static" \
     --disable-autodetect \
     --bindir="$BIN_DIR" \
-    --enable-pic \
+    --disable-pic \
     --enable-ffplay \
     --enable-fontconfig \
     --disable-frei0r \
