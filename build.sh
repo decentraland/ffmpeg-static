@@ -418,7 +418,7 @@ if [ "$platform" = "linux" ]; then
     --enable-libx264 \
     --enable-libx265 \
     --disable-libxvid \
-    --enable-libzimg \
+    --disable-libzimg \
     --enable-nonfree \
     --disable-openssl \
     --enable-static \
@@ -461,7 +461,7 @@ elif [ "$platform" = "darwin" ]; then
     --enable-libx264 \
     --enable-libx265 \
     --disable-libxvid \
-    --enable-libzimg \
+    --disable-libzimg \
     --enable-nonfree \
     --disable-openssl \
     --enable-static \
