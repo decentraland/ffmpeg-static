@@ -391,7 +391,7 @@ if [ "$platform" = "linux" ]; then
     --extra-ldexeflags="-static" \
     --disable-autodetect \
     --bindir="$BIN_DIR" \
-    --disable-pic \
+    --enable-pic \
     --enable-ffplay \
     --enable-fontconfig \
     --disable-frei0r \
