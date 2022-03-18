@@ -421,6 +421,7 @@ if [ "$platform" = "linux" ]; then
     --disable-libzimg \
     --enable-nonfree \
     --enable-openssl \
+    --enable-gnutls \
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
@@ -464,6 +465,7 @@ elif [ "$platform" = "darwin" ]; then
     --disable-libzimg \
     --enable-nonfree \
     --enable-openssl \
+    --enable-gnutls \
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
