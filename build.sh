@@ -6,10 +6,11 @@ set -u
 jflag=
 jval=2
 rebuild=0
+rebuild_ffmpeg=0
 download_only=0
-uname -mpi | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
-
-while getopts 'j:Bd' OPTION
+uname -mp | grep -qE 'x86|i386|i686' && is_x86=1 || is_x86=0
+echo $(uname -mp)
+while getopts 'j:BdR' OPTION
 do
   case $OPTION in
   j)
@@ -18,6 +19,9 @@ do
       ;;
   B)
       rebuild=1
+      ;;
+  R)
+      rebuild_ffmpeg=1
       ;;
   d)
       download_only=1
@@ -112,7 +116,7 @@ download \
   "x265_2.7.tar.gz" \
   "" \
   "b0d7d20da2a418fa4f53a559946ea079" \
-  "http://download.openpkg.org/components/cache/x265/"
+  "https://ftp.osuosl.org/pub/blfs/conglomeration/x265/"
 
 download \
   "v0.1.6.tar.gz" \
@@ -188,12 +192,6 @@ download \
   "https://github.com/uclouvain/openjpeg/archive/"
 
 download \
-  "v0.6.1.tar.gz" \
-  "libwebp-0.6.1.tar.gz" \
-  "1c3099cd2656d0d80d3550ee29fc0f28" \
-  "https://github.com/webmproject/libwebp/archive/"
-
-download \
   "v1.3.6.tar.gz" \
   "vorbis-1.3.6.tar.gz" \
   "03e967efb961f65a313459c5d0f4cbfb" \
@@ -264,7 +262,7 @@ make install
 echo "*** Building x264 ***"
 cd $BUILD_DIR/x264*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-[ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic
+[ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic --disable-asm
 PATH="$BIN_DIR:$PATH" make -j $jval
 make install
 
@@ -273,7 +271,7 @@ cd $BUILD_DIR/x265*
 cd build/linux
 [ $rebuild -eq 1 ] && find . -mindepth 1 ! -name 'make-Makefiles.bash' -and ! -name 'multilib.sh' -exec rm -r {} +
 PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DENABLE_SHARED:BOOL=OFF -DSTATIC_LINK_CRT:BOOL=ON -DENABLE_CLI:BOOL=OFF ../../source
-sed -i 's/-lgcc_s/-lgcc_eh/g' x265.pc
+sed -i='' 's/-lgcc_s/-lgcc_eh/g' x265.pc
 make -j $jval
 make install
 
@@ -307,15 +305,6 @@ cd $BUILD_DIR/libass-*
 make -j $jval
 make install
 
-echo "*** Building mp3lame ***"
-cd $BUILD_DIR/lame*
-# The lame build script does not recognize aarch64, so need to set it manually
-uname -a | grep -q 'aarch64' && lame_build_target="--build=arm-linux" || lame_build_target=''
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-[ ! -f config.status ] && ./configure --prefix=$TARGET_DIR --enable-nasm --disable-shared $lame_build_target
-make
-make install
-
 echo "*** Building opus ***"
 cd $BUILD_DIR/opus*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
@@ -330,11 +319,6 @@ cd $BUILD_DIR/libvpx*
 PATH="$BIN_DIR:$PATH" make -j $jval
 make install
 
-echo "*** Building librtmp ***"
-cd $BUILD_DIR/rtmpdump-*
-cd librtmp
-[ $rebuild -eq 1 ] && make distclean || true
-
 # there's no configure, we have to edit Makefile directly
 if [ "$platform" = "linux" ]; then
   sed -i "/INC=.*/d" ./Makefile # Remove INC if present from previous run.
@@ -343,24 +327,12 @@ if [ "$platform" = "linux" ]; then
 elif [ "$platform" = "darwin" ]; then
   sed -i "" "s/prefix=.*/prefix=${TARGET_DIR_SED}/" ./Makefile
 fi
-make install_base
+make install
 
 echo "*** Building libsoxr ***"
 cd $BUILD_DIR/soxr-*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
 PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DBUILD_SHARED_LIBS:bool=off -DWITH_OPENMP:bool=off -DBUILD_TESTS:bool=off
-make -j $jval
-make install
-
-echo "*** Building libvidstab ***"
-cd $BUILD_DIR/vid.stab-release-*
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-if [ "$platform" = "linux" ]; then
-  sed -i "s/vidstab SHARED/vidstab STATIC/" ./CMakeLists.txt
-elif [ "$platform" = "darwin" ]; then
-  sed -i "" "s/vidstab SHARED/vidstab STATIC/" ./CMakeLists.txt
-fi
-PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR"
 make -j $jval
 make install
 
@@ -376,14 +348,6 @@ cd $BUILD_DIR/zimg-release-*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
 ./autogen.sh
 ./configure --enable-static  --prefix=$TARGET_DIR --disable-shared
-make -j $jval
-make install
-
-echo "*** Building libwebp ***"
-cd $BUILD_DIR/libwebp*
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-./autogen.sh
-./configure --prefix=$TARGET_DIR --disable-shared
 make -j $jval
 make install
 
@@ -414,7 +378,7 @@ make install
 # FFMpeg
 echo "*** Building FFmpeg ***"
 cd $BUILD_DIR/FFmpeg*
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
+[ $rebuild_ffmpeg -eq 1 -a -f Makefile ] && make distclean || true
 
 if [ "$platform" = "linux" ]; then
   [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" \
@@ -425,37 +389,42 @@ if [ "$platform" = "linux" ]; then
     --extra-ldflags="-L$TARGET_DIR/lib" \
     --extra-libs="-lpthread -lm -lz" \
     --extra-ldexeflags="-static" \
+    --disable-autodetect \
     --bindir="$BIN_DIR" \
     --enable-pic \
     --enable-ffplay \
     --enable-fontconfig \
-    --enable-frei0r \
+    --disable-frei0r \
     --enable-gpl \
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
     --enable-libfdk-aac \
     --enable-libfreetype \
-    --enable-libmp3lame \
-    --enable-libopencore-amrnb \
-    --enable-libopencore-amrwb \
+    --disable-libmp3lame \
+    --disable-libopencore-amrnb \
+    --disable-libopencore-amrwb \
     --enable-libopenjpeg \
     --enable-libopus \
-    --enable-librtmp \
+    --disable-librtmp \
     --enable-libsoxr \
     --enable-libspeex \
-    --enable-libtheora \
-    --enable-libvidstab \
-    --enable-libvo-amrwbenc \
+    --disable-libtheora \
+    --disable-libvidstab \
+    --disable-libvo-amrwbenc \
     --enable-libvorbis \
     --enable-libvpx \
-    --enable-libwebp \
+    --disable-libwebp \
     --enable-libx264 \
     --enable-libx265 \
-    --enable-libxvid \
-    --enable-libzimg \
+    --disable-libxvid \
+    --disable-libzimg \
     --enable-nonfree \
-    --enable-openssl
+    --disable-openssl \
+    --enable-static \
+    --disable-libxcb \
+    --disable-sdl2 \
+    --disable-opengl
 elif [ "$platform" = "darwin" ]; then
   [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" \
   PKG_CONFIG_PATH="${TARGET_DIR}/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/local/Cellar/openssl/1.0.2o_1/lib/pkgconfig" ./configure \
@@ -466,34 +435,40 @@ elif [ "$platform" = "darwin" ]; then
     --extra-ldflags="-L$TARGET_DIR/lib" \
     --extra-ldexeflags="-Bstatic" \
     --bindir="$BIN_DIR" \
+    --disable-autodetect \
     --enable-pic \
     --enable-ffplay \
     --enable-fontconfig \
-    --enable-frei0r \
+    --disable-frei0r \
     --enable-gpl \
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
     --enable-libfdk-aac \
     --enable-libfreetype \
-    --enable-libmp3lame \
-    --enable-libopencore-amrnb \
-    --enable-libopencore-amrwb \
+    --disable-libmp3lame \
+    --disable-libopencore-amrnb \
+    --disable-libopencore-amrwb \
     --enable-libopenjpeg \
     --enable-libopus \
-    --enable-librtmp \
+    --disable-librtmp \
     --enable-libsoxr \
     --enable-libspeex \
-    --enable-libvidstab \
+    --disable-libvidstab \
     --enable-libvorbis \
     --enable-libvpx \
-    --enable-libwebp \
+    --disable-libwebp \
     --enable-libx264 \
     --enable-libx265 \
-    --enable-libxvid \
-    --enable-libzimg \
+    --disable-libxvid \
+    --disable-libzimg \
     --enable-nonfree \
-    --enable-openssl
+    --disable-openssl \
+    --enable-static \
+    --disable-libxcb \
+    --disable-sdl2 \
+    --disable-opengl \
+    --disable-x86asm
 fi
 
 PATH="$BIN_DIR:$PATH" make -j $jval
