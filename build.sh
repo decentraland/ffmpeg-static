@@ -420,7 +420,7 @@ if [ "$platform" = "linux" ]; then
     --disable-libxvid \
     --disable-libzimg \
     --enable-nonfree \
-    --disable-openssl \
+    --enable-openssl \
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
@@ -463,7 +463,7 @@ elif [ "$platform" = "darwin" ]; then
     --disable-libxvid \
     --disable-libzimg \
     --enable-nonfree \
-    --disable-openssl \
+    --enable-openssl \
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
