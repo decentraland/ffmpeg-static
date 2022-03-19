@@ -204,9 +204,9 @@ download \
   "https://github.com/xiph/speex/archive/"
 
 download \
-  "n4.0.tar.gz" \
-  "ffmpeg4.0.tar.gz" \
-  "4749a5e56f31e7ccebd3f9924972220f" \
+  "n5.0.tar.gz" \
+  "ffmpeg5.0.tar.gz" \
+  "fb06e31c0bef2cc42b0ddf07a3412814" \
   "https://github.com/FFmpeg/FFmpeg/archive"
 
 [ $download_only -eq 1 ] && exit 0
