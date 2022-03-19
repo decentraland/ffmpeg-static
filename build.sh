@@ -118,12 +118,6 @@ download \
   "b0d7d20da2a418fa4f53a559946ea079" \
   "https://ftp.osuosl.org/pub/blfs/conglomeration/x265/"
 
-download \
-  "v0.1.6.tar.gz" \
-  "fdk-aac.tar.gz" \
-  "223d5f579d29fb0d019a775da4e0e061" \
-  "https://github.com/mstorsjo/fdk-aac/archive"
-
 # libass dependency
 download \
   "harfbuzz-1.4.6.tar.bz2" \
@@ -275,14 +269,6 @@ sed -i='' 's/-lgcc_s/-lgcc_eh/g' x265.pc
 make -j $jval
 make install
 
-echo "*** Building fdk-aac ***"
-cd $BUILD_DIR/fdk-aac*
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-autoreconf -fiv
-[ ! -f config.status ] && ./configure --prefix=$TARGET_DIR --disable-shared
-make -j $jval
-make install
-
 echo "*** Building harfbuzz ***"
 cd $BUILD_DIR/harfbuzz-*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
@@ -399,7 +385,6 @@ if [ "$platform" = "linux" ]; then
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
-    --enable-libfdk-aac \
     --enable-libfreetype \
     --disable-libmp3lame \
     --disable-libopencore-amrnb \
@@ -444,7 +429,6 @@ elif [ "$platform" = "darwin" ]; then
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
-    --enable-libfdk-aac \
     --enable-libfreetype \
     --disable-libmp3lame \
     --disable-libopencore-amrnb \
