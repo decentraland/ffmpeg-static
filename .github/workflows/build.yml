@@ -86,6 +86,14 @@ jobs:
           brew install cmake automake libtool openssl
           cmake --version
           
+      - name: Cache Build
+        id: cache-build
+        uses: actions/cache@v2
+        with:
+          path: |
+            build
+            target
+          key: ${{ runner.os }}-${{ hashFiles('build.sh') }}
       - name: Configure and build
         shell: bash
         run: |

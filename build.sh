@@ -95,10 +95,10 @@ cd $BUILD_DIR
   "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/"
 
 download \
-  "OpenSSL_1_0_2o.tar.gz" \
+  "openssl-3.0.2.tar.gz" \
   "" \
-  "5b5c050f83feaa0c784070637fac3af4" \
-  "https://github.com/openssl/openssl/archive/"
+  "af9db7f303a21eea84dfafa5a714f27f" \
+  "https://github.com/openssl/openssl/archive/refs/tags/"
 
 download \
   "v1.2.11.tar.gz" \
@@ -117,12 +117,6 @@ download \
   "" \
   "b0d7d20da2a418fa4f53a559946ea079" \
   "https://ftp.osuosl.org/pub/blfs/conglomeration/x265/"
-
-download \
-  "v0.1.6.tar.gz" \
-  "fdk-aac.tar.gz" \
-  "223d5f579d29fb0d019a775da4e0e061" \
-  "https://github.com/mstorsjo/fdk-aac/archive"
 
 # libass dependency
 download \
@@ -210,9 +204,9 @@ download \
   "https://github.com/xiph/speex/archive/"
 
 download \
-  "n4.0.tar.gz" \
-  "ffmpeg4.0.tar.gz" \
-  "4749a5e56f31e7ccebd3f9924972220f" \
+  "n5.0.tar.gz" \
+  "ffmpeg5.0.tar.gz" \
+  "fb06e31c0bef2cc42b0ddf07a3412814" \
   "https://github.com/FFmpeg/FFmpeg/archive"
 
 [ $download_only -eq 1 ] && exit 0
@@ -272,14 +266,6 @@ cd build/linux
 [ $rebuild -eq 1 ] && find . -mindepth 1 ! -name 'make-Makefiles.bash' -and ! -name 'multilib.sh' -exec rm -r {} +
 PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DENABLE_SHARED:BOOL=OFF -DSTATIC_LINK_CRT:BOOL=ON -DENABLE_CLI:BOOL=OFF ../../source
 sed -i='' 's/-lgcc_s/-lgcc_eh/g' x265.pc
-make -j $jval
-make install
-
-echo "*** Building fdk-aac ***"
-cd $BUILD_DIR/fdk-aac*
-[ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-autoreconf -fiv
-[ ! -f config.status ] && ./configure --prefix=$TARGET_DIR --disable-shared
 make -j $jval
 make install
 
@@ -399,7 +385,6 @@ if [ "$platform" = "linux" ]; then
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
-    --enable-libfdk-aac \
     --enable-libfreetype \
     --disable-libmp3lame \
     --disable-libopencore-amrnb \
@@ -419,7 +404,7 @@ if [ "$platform" = "linux" ]; then
     --enable-libx265 \
     --disable-libxvid \
     --disable-libzimg \
-    --enable-nonfree \
+    --disable-nonfree \
     --enable-openssl \
     --enable-static \
     --disable-libxcb \
@@ -444,7 +429,6 @@ elif [ "$platform" = "darwin" ]; then
     --enable-version3 \
     --enable-libass \
     --enable-libfribidi \
-    --enable-libfdk-aac \
     --enable-libfreetype \
     --disable-libmp3lame \
     --disable-libopencore-amrnb \
@@ -462,7 +446,7 @@ elif [ "$platform" = "darwin" ]; then
     --enable-libx265 \
     --disable-libxvid \
     --disable-libzimg \
-    --enable-nonfree \
+    --disable-nonfree \
     --enable-openssl \
     --enable-static \
     --disable-libxcb \
