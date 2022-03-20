@@ -95,10 +95,10 @@ cd $BUILD_DIR
   "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/"
 
 download \
-  "OpenSSL_1_0_2o.tar.gz" \
+  "openssl-3.0.2.tar.gz" \
   "" \
-  "5b5c050f83feaa0c784070637fac3af4" \
-  "https://github.com/openssl/openssl/archive/"
+  "af9db7f303a21eea84dfafa5a714f27f" \
+  "https://github.com/openssl/openssl/archive/refs/tags/"
 
 download \
   "v1.2.11.tar.gz" \
