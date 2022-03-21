@@ -240,9 +240,9 @@ echo "*** Building OpenSSL ***"
 cd $BUILD_DIR/openssl*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
 if [ "$platform" = "darwin" ]; then
-  PATH="$BIN_DIR:$PATH" ./Configure darwin64-x86_64-cc --prefix=$TARGET_DIR --no-shared
+  PATH="$BIN_DIR:$PATH" ./Configure darwin64-x86_64-cc --prefix=$TARGET_DIR
 elif [ "$platform" = "linux" ]; then
-  PATH="$BIN_DIR:$PATH" ./config --prefix=$TARGET_DIR --no-shared
+  PATH="$BIN_DIR:$PATH" ./config --prefix=$TARGET_DIR
 fi
 PATH="$BIN_DIR:$PATH" make -j $jval
 make install
