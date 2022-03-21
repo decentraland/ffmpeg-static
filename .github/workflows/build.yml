@@ -4,8 +4,6 @@ name: Build
 # Controls when the action will run. Triggers the workflow on push
 on: 
   push:
-  pull_request:
-  release:
     # tags:
     # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
@@ -93,7 +91,7 @@ jobs:
           path: |
             build
             target
-          key: ${{ runner.os }}-${{ hashFiles('build.sh') }}
+          key: ${{ runner.os }}-1
       - name: Configure and build
         shell: bash
         run: |
