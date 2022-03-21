@@ -395,8 +395,10 @@ if [ "$platform" = "linux" ]; then
     --enable-static \
     --disable-libxcb \
     --disable-sdl2 \
-    --disable-opengl
+    --disable-opengl \
+    --enable-zlib
 elif [ "$platform" = "darwin" ]; then
+  ./configure --help
   [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" \
   PKG_CONFIG_PATH="${TARGET_DIR}/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/local/Cellar/openssl/1.0.2o_1/lib/pkgconfig" ./configure \
     --cc=/usr/bin/clang \
@@ -438,7 +440,8 @@ elif [ "$platform" = "darwin" ]; then
     --disable-libxcb \
     --disable-sdl2 \
     --disable-opengl \
-    --disable-x86asm
+    --disable-x86asm \
+    --enable-zlib
 fi
 
 PATH="$BIN_DIR:$PATH" make -j $jval
