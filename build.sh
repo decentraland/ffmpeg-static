@@ -231,7 +231,7 @@ cd $BUILD_DIR/zlib*
 if [ "$platform" = "linux" ]; then
   [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --static
 elif [ "$platform" = "darwin" ]; then
-  [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --static
+  [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --static --archs="-arch arm64 -arch x86_64"
 fi
 PATH="$BIN_DIR:$PATH" make -j $jval
 make install
@@ -240,12 +240,33 @@ echo "*** Building OpenSSL ***"
 cd $BUILD_DIR/openssl*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
 if [ "$platform" = "darwin" ]; then
-  PATH="$BIN_DIR:$PATH" ./Configure darwin64-x86_64-cc --prefix=$TARGET_DIR
+  folder_name=$(basename "$PWD")
+  cp -r ../${folder_name} ../${folder_name}-arm64
+
+  cd ../${folder_name}-arm64
+  PATH="$BIN_DIR:$PATH" ./Configure enable-rc5 zlib darwin64-arm64-cc no-asm no-shared --prefix=$TARGET_DIR
+  PATH="$BIN_DIR:$PATH" make -j $jval
+
+  cd ../${folder_name}
+
+  PATH="$BIN_DIR:$PATH" ./Configure darwin64-x86_64-cc no-shared --prefix=$TARGET_DIR
+  PATH="$BIN_DIR:$PATH" make -j $jval
+
+  lipo -create ../${folder_name}-arm64/libcrypto.a libcrypto.a -output libcrypto-universal.a
+  lipo -create ../${folder_name}-arm64/libssl.a libssl.a -output libssl-universal.a
+
+  rm libssl.a libcrypto.a
+  mv libcrypto-universal.a libcrypto.a
+  mv libssl-universal.a libssl.a
+
+  make install_sw
 elif [ "$platform" = "linux" ]; then
   PATH="$BIN_DIR:$PATH" ./config --prefix=$TARGET_DIR
+  PATH="$BIN_DIR:$PATH" make -j $jval
+  make install
 fi
-PATH="$BIN_DIR:$PATH" make -j $jval
-make install
+
+exit
 
 echo "*** Building x264 ***"
 cd $BUILD_DIR/x264*
