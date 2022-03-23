@@ -266,14 +266,38 @@ elif [ "$platform" = "linux" ]; then
   make install
 fi
 
-exit
+compile_x264() {
+  [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic --disable-asm --host="$1" --extra-cflags="$2"
+  PATH="$BIN_DIR:$PATH" make -j $jval
+}
 
 echo "*** Building x264 ***"
 cd $BUILD_DIR/x264*
 [ $rebuild -eq 1 -a -f Makefile ] && make distclean || true
-[ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic --disable-asm
-PATH="$BIN_DIR:$PATH" make -j $jval
-make install
+if [ "$platform" = "darwin" ]; then
+  folder_name=$(basename "$PWD")
+  cp -r ../${folder_name} ../${folder_name}-arm64
+
+  cd ../${folder_name}-arm64
+  compile_x264 "arm64-apple-darwin20.3.0" "--target=arm64-apple-macos"
+
+  cd ../${folder_name}
+  compile_x264 "x86_64-apple-darwin10" "-target x86_64-apple-macos10.12"
+
+  lipo -create ../${folder_name}-arm64/libx264.a libx264.a -output libx264-universal.a
+
+  rm libx264.a
+  mv libx264-universal.a libx264.a
+
+  make install
+
+elif [ "$platform" = "linux" ]; then
+  [ ! -f config.status ] && PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic --disable-asm
+  PATH="$BIN_DIR:$PATH" make -j $jval
+  make install
+fi
+
+exit
 
 echo "*** Building x265 ***"
 cd $BUILD_DIR/x265*
